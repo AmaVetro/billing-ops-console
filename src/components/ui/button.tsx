@@ -2,8 +2,10 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils" //cn de shadcn sirve para mezclar clases de Tailwind sin que se pisen mal.
 
+
+//Esto es solo formato de estilo para los botones:
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
@@ -41,22 +43,24 @@ const buttonVariants = cva(
   }
 )
 
+
+//Esto es el botón en si, con las clases de estilo de arriba siendo usadas, y el contenido
 function Button({
-  className,
+  className, //Los props que recibe la función
   variant = "default",
   size = "default",
   asChild = false,
   ...props
 }: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
+  VariantProps<typeof buttonVariants> & { 
+    asChild?: boolean 
   }) {
-  const Comp = asChild ? Slot.Root : "button"
+  const Comp = asChild ? Slot.Root : "button" 
 
   return (
     <Comp
       data-slot="button"
-      data-variant={variant}
+      data-variant={variant} 
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
@@ -64,4 +68,8 @@ function Button({
   )
 }
 
-export { Button, buttonVariants }
+//A continuación exportamos el botón y el formato de estilo para los botones
+//Es decir, exportamos todo lo creado arriba --> el botón, que consume las buttonVariants, y las buttonVariants
+//De esta manera, podemos reutilizar el botón, pero también el formato de estilo, 
+//para los botones en otros archivos.
+export { Button, buttonVariants } 
