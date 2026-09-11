@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci?sslmode=require
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm and Node.js
+        uses: pnpm/setup@v2
+        with:
+          version: 11
+          runtime: node@22
+          cache: true
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
