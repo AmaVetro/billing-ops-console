@@ -22,3 +22,88 @@ model SchemaPing {
 }
 
 
+
+//Primeras tablas reales, Role y User servirán para Auth.js
+enum Role {
+  ADMIN
+  OPERATOR
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  passwordHash  String?
+  role          Role      @default(OPERATOR)
+  accounts      Account[]
+  sessions      Session[]
+  @@map("users")
+}
+
+
+//Como se vé, Account tiene campo user dentro, el cuál es la FK que mete User aquí
+//Es decir User 1:M Account
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+
+//Como se vé, Session tiene campo user dentro, el cuál es la FK que mete User aquí
+//Es decir User 1:M Session
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+
+//En el esquema oficial de Ath.js, VerificationToken no
+//necesita relacionarse con User
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+//Esto es debido a que:
+//En Auth.js (documentación oficial), VerificationToken
+//es solo un vale temporal para un flujo concreto:
+//El login por enlace mágico al correo ("Te mando un link
+//Si lo abres, eres tú")
+//El VerificationToken es solo para comparar que el token
+//de un usuario calce con el idenfifier de ese usuario (correo comúnmente)
+//El vale dura solo una vez, es de un solo uso.
+//¿Porqué no va relacionado a User?:
+//Porque a veces los VerificationTokens se crean sin siquiera
+//haber un usuario registrado.
+//A veces el mismo verificationToken sirve para poder registrar a un usuario.
+//Pero muchos verificationToken se crean para eso,
+//pero el usuario nunca los usa, por tanto los verificationToken
+//deben poder quedarse sin relación a un usuario obligatoria.
+//A demás, porque es desechable, no necesita historicidad en la bd.
+//Podría ser una relación opcional entonces? Sí
+//Pero igualmente no se relacionan esas tablas: PORQUE EL MODELO OFICIAL LO DICE ASÍ.
