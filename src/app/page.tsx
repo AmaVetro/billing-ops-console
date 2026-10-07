@@ -1,5 +1,6 @@
 //Importamos el botón desde el archivo button.tsx de la carpeta components/ui
 import { Button } from "@/components/ui/button";
+import { signOut } from "@/auth";
 
 
 export default function Home() { 
@@ -10,6 +11,15 @@ export default function Home() {
       </h1> 
       <p className="text-muted-foreground text-sm">setup</p>
       <Button type="button">Continuar</Button> 
+      <form
+        action={async () => {
+          "use server";
+          await signOut({ redirectTo: "/login" });
+        }}
+      >
+        <Button type="submit">Cerrar sesión</Button>
+      </form>
+      
     </main>
   );
 }

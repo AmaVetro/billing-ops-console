@@ -7,8 +7,12 @@ export default function LoginPage() {
         <form
             className="flex w-full max-w-sm flex-col gap-4"
             action={async (formData) => {
-            "use server";
-            await signIn("credentials", formData);
+                "use server";
+                await signIn("credentials", {
+                    email: formData.get("email"),
+                    password: formData.get("password"),
+                    redirectTo: "/",
+                });
             }}
         >
             <label className="flex flex-col gap-1 text-sm">
